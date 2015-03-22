@@ -18,6 +18,8 @@
 MMBitmapRef copyMMBitmapFromDisplayInRect(MMRect rect)
 {
 #if defined(IS_MACOSX)
+	// http://stackoverflow.com/questions/16171283/mac-os-x-quartz-cgwindowlistcreateimage-scrambles-image-on-1366x768-resolutions/17389894#17389894
+	rect.size.width &= 0xFFFFFFF0;
 
 	size_t bytewidth;
 	uint8_t bitsPerPixel, bytesPerPixel;
@@ -37,7 +39,7 @@ MMBitmapRef copyMMBitmapFromDisplayInRect(MMRect rect)
 		depth = 8;
 
 	bitsPerPixel = (uint8_t) depth; 
-	bytesPerPixel = bitsPerPixel / 8;
+	bytesPerPixel = bitsPerPixel >> 3;
 	/* Align width to padding. */
 	bytewidth = ADD_PADDING(rect.size.width * bytesPerPixel);
 
@@ -53,7 +55,7 @@ MMBitmapRef copyMMBitmapFromDisplayInRect(MMRect rect)
     size_t width, height;    
     width = CGImageGetWidth(image);
     height = CGImageGetHeight(image); 
-    size_t bpp = CGImageGetBitsPerPixel(image) / 8;
+    size_t bpp = CGImageGetBitsPerPixel(image) >> 3;
 
     uint8 *pixels = malloc(width * height * bpp);
     memcpy(pixels, CFDataGetBytePtr(data), width * height * bpp);
