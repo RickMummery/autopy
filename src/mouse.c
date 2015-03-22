@@ -124,6 +124,24 @@ void clickMouse(MMMouseButton button)
 	toggleMouse(false, button);
 }
 
+void clickMousePoint(MMMouseButton button, MMPoint point)
+{
+	const CGPoint currentPos = CGPointFromMMPoint(point);
+	CGEventRef event = CGEventCreateMouseEvent(NULL,
+	                                           MMMouseToCGEventType(true, button),
+	                                           currentPos,
+	                                           (CGMouseButton)button);
+	CGEventPost(kCGSessionEventTap, event);
+	CFRelease(event);
+	
+	event = CGEventCreateMouseEvent(NULL,
+	                                MMMouseToCGEventType(false, button),
+	                                currentPos,
+	                                (CGMouseButton)button);
+	CGEventPost(kCGSessionEventTap, event);
+	CFRelease(event);
+}
+
 void dblclickMouse(MMMouseButton button)
 {
 	clickMouse(button);

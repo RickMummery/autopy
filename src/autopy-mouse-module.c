@@ -39,6 +39,11 @@ static PyObject *mouse_toggle(PyObject *self, PyObject *args);
                 releases the given mouse button. */
 static PyObject *mouse_click(PyObject *self, PyObject *args);
 
+/* Syntax: click_point(button=LEFT_BUTTON, PyObject *args) */
+/* Arguments: |button| => int */
+/* Description: [Mac] click at given point. */
+static PyObject *mouse_click_point(PyObject *self, PyObject *args);
+
 /* Syntax: dblclick(button=LEFT_BUTTON) */
 /* Arguments: |button| => int */
 /* Description: Explicit double-click for Mac OS X which click two times is not working. */
@@ -60,6 +65,9 @@ static PyMethodDef MouseMethods[] = {
 	{"click", mouse_click, METH_VARARGS,
 	 "click(button=LEFT_BUTTON) -> None\n"
 	 "Clicks the mouse with the given button."},
+	{"click_point", mouse_click_point, METH_VARARGS,
+	 "click_point(point, button=LEFT_BUTTON) -> None\n"
+	 "Clicks the mouse with the given button at the given location."},
 	{"dblclick", mouse_dblclick, METH_VARARGS,
 	 "dblclick(button=LEFT_BUTTON) -> None\n"
 	 "Double-clicks the mouse with the given button."},
@@ -171,6 +179,28 @@ static PyObject *mouse_click(PyObject *self, PyObject *args)
 
 	clickMouse(button);
 
+	Py_RETURN_NONE;
+}
+
+static PyObject *mouse_click_point(PyObject *self, PyObject *args)
+{
+	MMPoint point;
+	MMMouseButton button = LEFT_BUTTON;
+
+	if (!PyArg_ParseTuple(args, "kk|I", &point.x, &point.y, &button)) return NULL;
+	
+	if (!pointVisibleOnMainDisplay(point)) {
+		PyErr_SetString(PyExc_ValueError, "Point out of bounds");
+		return NULL;
+	}
+
+	if (!MMMouseButtonIsValid(button)) {
+		PyErr_SetString(PyExc_ValueError, "Invalid mouse button");
+		return NULL;
+	}
+	
+	clickMousePoint(button, point);
+	
 	Py_RETURN_NONE;
 }
 
