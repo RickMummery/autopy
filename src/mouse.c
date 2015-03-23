@@ -126,6 +126,7 @@ void clickMouse(MMMouseButton button)
 
 void clickMousePoint(MMMouseButton button, MMPoint point)
 {
+#if defined(IS_MACOSX)
 	const CGPoint currentPos = CGPointFromMMPoint(point);
 	CGEventRef event = CGEventCreateMouseEvent(NULL,
 	                                           MMMouseToCGEventType(true, button),
@@ -133,13 +134,17 @@ void clickMousePoint(MMMouseButton button, MMPoint point)
 	                                           (CGMouseButton)button);
 	CGEventPost(kCGSessionEventTap, event);
 	CFRelease(event);
-	
+
 	event = CGEventCreateMouseEvent(NULL,
 	                                MMMouseToCGEventType(false, button),
 	                                currentPos,
 	                                (CGMouseButton)button);
 	CGEventPost(kCGSessionEventTap, event);
 	CFRelease(event);
+#else
+	moveMouse(point);
+	clickMouse(button);
+#endif
 }
 
 void dblclickMouse(MMMouseButton button)
